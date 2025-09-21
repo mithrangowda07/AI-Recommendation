@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Movie Recommendations - MovieRec{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="display-4 fw-bold mb-4">
+                    <i class="fas fa-magic me-3"></i>Discover Your Next Favorite Movie
+                </h1>
+                <p class="lead mb-4">
+                    Get personalized movie recommendations using our advanced hybrid AI system that combines 
+                    content-based and collaborative filtering techniques.
+                </p>
+                {% if not model_info.is_ready %}
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Models not ready. Please run <code>python train.py</code> first.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recommendation Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-search me-2"></i>Get Recommendations
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="POST" action="{{ url_for('main.recommend') }}">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="movie_title" class="form-label">
+                                        <i class="fas fa-film me-1"></i>Movie Title
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="movie_title" 
+                                           name="movie_title" 
+                                           placeholder="Enter a movie title (e.g., The Dark Knight)"
+                                           required>
+                                    <div class="form-text">Enter the title of a movie you like</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="user_id" class="form-label">
+                                        <i class="fas fa-user me-1"></i>User ID
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="user_id" 
+                                           name="user_id" 
+                                           placeholder="Enter your user ID (1-1000)"
+                                           min="1" 
+                                           max="1000" 
+                                           required>
+                                    <div class="form-text">Your unique user identifier</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="alpha" class="form-label">
+                                        <i class="fas fa-balance-scale me-1"></i>Recommendation Balance
+                                    </label>
+                                    <input type="range" 
+                                           class="form-range" 
+                                           id="alpha" 
+                                           name="alpha" 
+                                           min="0" 
+                                           max="1" 
+                                           step="0.1" 
+                                           value="0.6">
+                                    <div class="d-flex justify-content-between">
+                                        <small>Content-based</small>
+                                        <small id="alpha-value">0.6</small>
+                                        <small>Collaborative</small>
+                                    </div>
+                                    <div class="form-text">Balance between content similarity and user preferences</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="top_n" class="form-label">
+                                        <i class="fas fa-list me-1"></i>Number of Recommendations
+                                    </label>
+                                    <select class="form-select" id="top_n" name="top_n">
+                                        <option value="5">5 recommendations</option>
+                                        <option value="10" selected>10 recommendations</option>
+                                        <option value="15">15 recommendations</option>
+                                        <option value="20">20 recommendations</option>
+                                    </select>
+                                    <div class="form-text">How many movies to recommend</div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" 
+                                        class="btn btn-primary btn-lg" 
+                                        {% if not model_info.is_ready %}disabled{% endif %}>
+                                    <i class="fas fa-magic me-2"></i>
+                                    Get Recommendations
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="text-center">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 60px; height: 60px;">
+                        <i class="fas fa-brain fa-lg"></i>
+                    </div>
+                    <h5>Hybrid AI System</h5>
+                    <p class="text-muted">
+                        Combines content-based filtering (TF-IDF) with collaborative filtering (SVD) 
+                        for more accurate recommendations.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 mb-4">
+                <div class="text-center">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 60px; height: 60px;">
+                        <i class="fas fa-sliders-h fa-lg"></i>
+                    </div>
+                    <h5>Customizable Balance</h5>
+                    <p class="text-muted">
+                        Adjust the balance between content similarity and user preferences 
+                        to fine-tune your recommendations.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 mb-4">
+                <div class="text-center">
+                    <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 60px; height: 60px;">
+                        <i class="fas fa-chart-line fa-lg"></i>
+                    </div>
+                    <h5>Real-time Results</h5>
+                    <p class="text-muted">
+                        Get instant recommendations with detailed scoring and explanations 
+                        for each suggested movie.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- API Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h3 class="mb-4">
+                    <i class="fas fa-code me-2"></i>API Access
+                </h3>
+                <p class="lead mb-4">
+                    Integrate our recommendation system into your own applications using our REST API.
+                </p>
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">Example API Call:</h6>
+                        <code class="d-block text-start">
+                            GET /api/recommend?movie_title=The%20Dark%20Knight&user_id=1&alpha=0.6&top_n=10
+                        </code>
+                        <div class="mt-3">
+                            <a href="{{ url_for('main.api_status') }}" class="btn btn-outline-primary me-2" target="_blank">
+                                <i class="fas fa-cog me-1"></i>Check API Status
+                            </a>
+                            <a href="{{ url_for('main.api_movies') }}?q=batman" class="btn btn-outline-secondary" target="_blank">
+                                <i class="fas fa-search me-1"></i>Search Movies
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update alpha value display
+    const alphaSlider = document.getElementById('alpha');
+    const alphaValue = document.getElementById('alpha-value');
+    
+    alphaSlider.addEventListener('input', function() {
+        alphaValue.textContent = this.value;
+    });
+    
+    // Auto-focus on movie title input
+    document.getElementById('movie_title').focus();
+</script>
+{% endblock %}
