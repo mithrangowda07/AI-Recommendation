@@ -1,4 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
+from flask_login import current_user, login_required
+from app.models import User, Preference
+from app import db
 import pandas as pd
 from app.recommender import get_recommender, hybrid_recommend
 from app.utils import get_model_info, validate_models
@@ -12,6 +15,7 @@ main = Blueprint('main', __name__)
 
 
 @main.route('/')
+@login_required
 def index():
     """Homepage with recommendation form"""
     # Check if models are ready
@@ -20,10 +24,50 @@ def index():
     if not model_info['is_ready']:
         flash('Models not found. Please run train.py first to train the recommendation models.', 'warning')
     
-    return render_template('index.html', model_info=model_info)
+    # Personalized rows by saved preferences (country, language, genre)
+    country_movies = []
+    language_movies = []
+    genre_movies = []
+    pref = None
+    if current_user.is_authenticated:
+        pref = Preference.query.filter_by(user_id=current_user.id).first()
+        recommender = get_recommender()
+        if recommender is not None:
+            movies_df = recommender.movies_df
+            if pref and movies_df is not None:
+                # Parse multi-select values (stored as comma-separated string)
+                selected_countries = [v.strip() for v in (pref.country or '').split(',') if v.strip()]
+                selected_languages = [v.strip() for v in (pref.language or '').split(',') if v.strip()]
+                selected_genres = [v.strip() for v in (pref.genre or '').split(',') if v.strip()]
+
+                if selected_countries:
+                    mask = False
+                    for c in selected_countries:
+                        mask = mask | movies_df['production_country'].str.contains(c, na=False, case=False)
+                    country_movies = movies_df[mask].head(12).to_dict('records')
+                if selected_languages:
+                    mask = False
+                    for l in selected_languages:
+                        mask = mask | movies_df['original_language'].str.contains(l, na=False, case=False)
+                    language_movies = movies_df[mask].head(12).to_dict('records')
+                if selected_genres:
+                    mask = False
+                    for g in selected_genres:
+                        mask = mask | movies_df['genre'].str.contains(g, na=False, case=False)
+                    genre_movies = movies_df[mask].head(12).to_dict('records')
+    
+    return render_template('index.html', model_info=model_info, pref=pref, country_movies=country_movies, language_movies=language_movies, genre_movies=genre_movies)
+
+
+@main.route('/recommendations', methods=['GET'])
+@login_required
+def recommendations_page():
+    model_info = get_model_info()
+    return render_template('recommend.html', model_info=model_info)
 
 
 @main.route('/recommend', methods=['POST'])
+@login_required
 def recommend():
     """Handle recommendation form submission"""
     try:
@@ -38,8 +82,10 @@ def recommend():
             flash('Please enter a movie title.', 'error')
             return redirect(url_for('main.index'))
         
+        if not user_id and current_user.is_authenticated:
+            user_id = str(current_user.id)
         if not user_id:
-            flash('Please enter a user ID.', 'error')
+            flash('Please enter a user ID or login.', 'error')
             return redirect(url_for('main.index'))
         
         try:

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Recommendations - MovieRec{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0"><i class="fas fa-magic me-2"></i>Get Recommendations</h3>
+            <a class="btn btn-outline-secondary" href="{{ url_for('main.index') }}"><i class="fas fa-home me-2"></i>Home</a>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg">
+                    <div class="card-body p-4">
+                        <form method="POST" action="{{ url_for('main.recommend') }}">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="movie_title" class="form-label">
+                                        <i class="fas fa-film me-1"></i>Movie Title
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="movie_title" 
+                                           name="movie_title" 
+                                           placeholder="Enter a movie title (e.g., The Dark Knight)"
+                                           required>
+                                    <div class="form-text">Enter the title of a movie you like</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="user_id" class="form-label">
+                                        <i class="fas fa-user me-1"></i>User ID
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="user_id" 
+                                           name="user_id" 
+                                           placeholder="Using your account ID"
+                                           min="1" 
+                                           max="1000000" 
+                                           value="{% if current_user.is_authenticated %}{{ current_user.id }}{% endif %}">
+                                    <div class="form-text">Auto-filled from your account</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="alpha" class="form-label">
+                                        <i class="fas fa-balance-scale me-1"></i>Recommendation Balance
+                                    </label>
+                                    <input type="range" 
+                                           class="form-range" 
+                                           id="alpha" 
+                                           name="alpha" 
+                                           min="0" 
+                                           max="1" 
+                                           step="0.1" 
+                                           value="0.6">
+                                    <div class="d-flex justify-content-between">
+                                        <small>Content-based</small>
+                                        <small id="alpha-value">0.6</small>
+                                        <small>Collaborative</small>
+                                    </div>
+                                    <div class="form-text">Balance between content similarity and user preferences</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="top_n" class="form-label">
+                                        <i class="fas fa-list me-1"></i>Number of Recommendations
+                                    </label>
+                                    <select class="form-select" id="top_n" name="top_n">
+                                        <option value="5">5 recommendations</option>
+                                        <option value="10" selected>10 recommendations</option>
+                                        <option value="15">15 recommendations</option>
+                                        <option value="20">20 recommendations</option>
+                                    </select>
+                                    <div class="form-text">How many movies to recommend</div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-magic me-2"></i>Get Recommendations
+                                </button>
+                                <a class="btn btn-outline-secondary" href="{{ url_for('main.index') }}">
+                                    <i class="fas fa-home me-2"></i>Back to Home
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const alphaSlider = document.getElementById('alpha');
+    const alphaValue = document.getElementById('alpha-value');
+    alphaSlider.addEventListener('input', function() { alphaValue.textContent = this.value; });
+    document.getElementById('movie_title').focus();
+</script>
+{% endblock %}
+
+

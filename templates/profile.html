@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - MovieRec{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="card shadow">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Your Profile</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="POST" action="{{ url_for('auth.profile') }}">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Country</label>
+                                    <div class="border rounded p-2" style="max-height: 300px; overflow:auto;">
+                                        {% for c in countries %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="country" value="{{ c }}" id="country_{{ loop.index }}" {% if c in selected_countries %}checked{% endif %}>
+                                            <label class="form-check-label" for="country_{{ loop.index }}">{{ c }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="form-text">Choose one or more</div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Language</label>
+                                    <div class="border rounded p-2" style="max-height: 300px; overflow:auto;">
+                                        {% for l in languages %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="language" value="{{ l }}" id="language_{{ loop.index }}" {% if l in selected_languages %}checked{% endif %}>
+                                            <label class="form-check-label" for="language_{{ loop.index }}">{{ l }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="form-text">Choose one or more</div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Genre</label>
+                                    <div class="border rounded p-2" style="max-height: 300px; overflow:auto;">
+                                        {% for g in genres %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="genre" value="{{ g }}" id="genre_{{ loop.index }}" {% if g in selected_genres %}checked{% endif %}>
+                                            <label class="form-check-label" for="genre_{{ loop.index }}">{{ g }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="form-text">Choose one or more</div>
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-primary" type="submit">Save Preferences</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+
