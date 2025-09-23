@@ -97,6 +97,7 @@ AI-Recommendation/
 
 4. **Train the models**
    ```bash
+   python setup.py
    python train.py
    ```
    This will:

@@ -3,89 +3,108 @@
 {% block title %}Recommendations - MovieRec{% endblock %}
 
 {% block content %}
-<section class="py-5">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="mb-0"><i class="fas fa-magic me-2"></i>Get Recommendations</h3>
+<section class="content-section recommend-page">
+    <div class="container container-narrow">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0 section-title"><i class="fas fa-magic"></i><span>Get Recommendations</span></h3>
             <a class="btn btn-outline-secondary" href="{{ url_for('main.index') }}"><i class="fas fa-home me-2"></i>Home</a>
         </div>
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card shadow-lg">
-                    <div class="card-body p-4">
+            <div class="col-lg-9">
+                <div class="card shadow-sm">
+                    <div class="card-header py-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Step 1</span>
+                            <strong>Fill the details to tailor your recommendations</strong>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 p-lg-5">
+                    
                         <form method="POST" action="{{ url_for('main.recommend') }}">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="movie_title" class="form-label">
-                                        <i class="fas fa-film me-1"></i>Movie Title
-                                    </label>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="movie_title" 
-                                           name="movie_title" 
-                                           placeholder="Enter a movie title (e.g., The Dark Knight)"
-                                           required>
-                                    <div class="form-text">Enter the title of a movie you like</div>
-                                </div>
-                                
-                                <div class="col-md-6 mb-3">
-                                    <label for="user_id" class="form-label">
-                                        <i class="fas fa-user me-1"></i>User ID
-                                    </label>
-                                    <input type="number" 
-                                           class="form-control" 
-                                           id="user_id" 
-                                           name="user_id" 
-                                           placeholder="Using your account ID"
-                                           min="1" 
-                                           max="1000000" 
-                                           value="{% if current_user.is_authenticated %}{{ current_user.id }}{% endif %}">
-                                    <div class="form-text">Auto-filled from your account</div>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="alpha" class="form-label">
-                                        <i class="fas fa-balance-scale me-1"></i>Recommendation Balance
-                                    </label>
-                                    <input type="range" 
-                                           class="form-range" 
-                                           id="alpha" 
-                                           name="alpha" 
-                                           min="0" 
-                                           max="1" 
-                                           step="0.1" 
-                                           value="0.6">
-                                    <div class="d-flex justify-content-between">
-                                        <small>Content-based</small>
-                                        <small id="alpha-value">0.6</small>
-                                        <small>Collaborative</small>
+                            <!-- Movie Input -->
+                            <div class="pb-4 mb-4 border-bottom">
+                                <h6 class="text-uppercase text-muted mb-3"><i class="fas fa-film me-2"></i>Movie</h6>
+                                <div class="row g-4">
+                                    <div class="col-12">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                            <input type="text" 
+                                                   class="form-control" 
+                                                   id="movie_title" 
+                                                   name="movie_title" 
+                                                   placeholder="Type a movie you like (e.g., The Dark Knight)"
+                                                   required>
+                                        </div>
+                                        <div class="form-text">We will find similar movies based on this title</div>
                                     </div>
-                                    <div class="form-text">Balance between content similarity and user preferences</div>
-                                </div>
-                                
-                                <div class="col-md-6 mb-3">
-                                    <label for="top_n" class="form-label">
-                                        <i class="fas fa-list me-1"></i>Number of Recommendations
-                                    </label>
-                                    <select class="form-select" id="top_n" name="top_n">
-                                        <option value="5">5 recommendations</option>
-                                        <option value="10" selected>10 recommendations</option>
-                                        <option value="15">15 recommendations</option>
-                                        <option value="20">20 recommendations</option>
-                                    </select>
-                                    <div class="form-text">How many movies to recommend</div>
                                 </div>
                             </div>
-                            
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-magic me-2"></i>Get Recommendations
-                                </button>
-                                <a class="btn btn-outline-secondary" href="{{ url_for('main.index') }}">
-                                    <i class="fas fa-home me-2"></i>Back to Home
-                                </a>
+
+                            <!-- User Context -->
+                            <div class="pb-4 mb-4 border-bottom">
+                                <h6 class="text-uppercase text-muted mb-3"><i class="fas fa-user me-2"></i>User</h6>
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label for="user_id" class="form-label">Account ID (optional)</label>
+                                        <input type="number" 
+                                               class="form-control" 
+                                               id="user_id" 
+                                               name="user_id" 
+                                               placeholder="Your account ID"
+                                               min="1" 
+                                               max="1000000" 
+                                               value="{% if current_user.is_authenticated %}{{ current_user.id }}{% endif %}">
+                                        <div class="form-text">If you are logged in, this is prefilled</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recommendation Settings -->
+                            <div class="pb-2">
+                                <h6 class="text-uppercase text-muted mb-3"><i class="fas fa-sliders-h me-2"></i>Settings</h6>
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label for="alpha" class="form-label d-flex align-items-center justify-content-between">
+                                            <span><i class="fas fa-balance-scale me-2"></i>Recommendation Balance</span>
+                                            <span class="badge bg-info-subtle text-info border border-info-subtle" id="alpha-badge">0.6</span>
+                                        </label>
+                                        <input type="range" 
+                                               class="form-range" 
+                                               id="alpha" 
+                                               name="alpha" 
+                                               min="0" 
+                                               max="1" 
+                                               step="0.1" 
+                                               value="0.6">
+                                        <div class="d-flex justify-content-between mt-1">
+                                            <small>Content-based</small>
+                                            <small>Collaborative</small>
+                                        </div>
+                                        <div class="form-text">Move left for similar content, right for user taste</div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="top_n" class="form-label"><i class="fas fa-list me-2"></i>Number of Recommendations</label>
+                                        <select class="form-select" id="top_n" name="top_n">
+                                            <option value="5">5 recommendations</option>
+                                            <option value="10" selected>10 recommendations</option>
+                                            <option value="15">15 recommendations</option>
+                                            <option value="20">20 recommendations</option>
+                                        </select>
+                                        <div class="form-text">Choose how many results to show</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-footer mt-4 px-0">
+                                <div class="d-flex gap-3">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-magic me-2"></i>Get Recommendations
+                                    </button>
+                                    <a class="btn btn-outline-secondary" href="{{ url_for('main.index') }}">
+                                        <i class="fas fa-home me-2"></i>Back to Home
+                                    </a>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -96,12 +115,42 @@
 </section>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Scoped to recommendation page */
+    [data-bs-theme="dark"] .recommend-page .card { background-color: #181a1b; border-color: rgba(255,255,255,.06); }
+    [data-bs-theme="dark"] .recommend-page .card-header { background-color: #151718; border-bottom-color: rgba(255,255,255,.06); }
+    [data-bs-theme="dark"] .recommend-page .card-footer { background-color: transparent; border-top-color: rgba(255,255,255,.06); }
+    [data-bs-theme="dark"] .recommend-page .input-group-text { background-color: #202325; color: #cbd3da; border-color: rgba(255,255,255,.08); }
+    [data-bs-theme="dark"] .recommend-page .form-control,
+    [data-bs-theme="dark"] .recommend-page .form-select { background-color: #202325; color: #e6e9ed; border-color: rgba(255,255,255,.08); }
+    [data-bs-theme="dark"] .recommend-page .form-control::placeholder { color: rgba(235,235,245,.55); }
+    [data-bs-theme="dark"] .recommend-page .form-text { color: rgba(235,235,245,.6); }
+    [data-bs-theme="dark"] .recommend-page .border-bottom { border-bottom-color: rgba(255,255,255,.08) !important; }
+    [data-bs-theme="dark"] .recommend-page h6.text-muted { color: rgba(255,255,255,.85) !important; }
+    [data-bs-theme="dark"] .recommend-page .badge { background-color: rgba(56,132,255,.18); color: #7bb1ff; border-color: rgba(56,132,255,.28) !important; }
+    
+    /* Range slider colors for dark mode */
+    [data-bs-theme="dark"] .recommend-page input[type="range"]::-webkit-slider-runnable-track { background: linear-gradient(90deg, #5865f2 0%, #9b59b6 100%); height: 6px; border-radius: 6px; }
+    [data-bs-theme="dark"] .recommend-page input[type="range"]::-webkit-slider-thumb { background: #6f74ff; border: 2px solid #c6c8ff; margin-top: -6px; }
+    [data-bs-theme="dark"] .recommend-page input[type="range"] { accent-color: #6f74ff; }
+
+    /* Buttons spacing in footer */
+    .recommend-page .card-footer .btn { min-width: 12rem; }
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script>
     const alphaSlider = document.getElementById('alpha');
-    const alphaValue = document.getElementById('alpha-value');
-    alphaSlider.addEventListener('input', function() { alphaValue.textContent = this.value; });
-    document.getElementById('movie_title').focus();
+    const alphaBadge = document.getElementById('alpha-badge');
+    if (alphaSlider && alphaBadge) {
+        const updateAlpha = () => { alphaBadge.textContent = alphaSlider.value; };
+        alphaSlider.addEventListener('input', updateAlpha);
+        updateAlpha();
+    }
+    const movieTitleInput = document.getElementById('movie_title');
+    if (movieTitleInput) { movieTitleInput.focus(); }
 </script>
 {% endblock %}
 

@@ -3,56 +3,92 @@
 {% block title %}Profile - MovieRec{% endblock %}
 
 {% block content %}
-<section class="py-5">
+<section class="content-section">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-7">
-                <div class="card shadow">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Your Profile</h5>
-                    </div>
-                    <div class="card-body p-4">
+            <div class="col-lg-10">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="text-center mb-4">
+                            <h3 class="fw-bold mb-1"><i class="fas fa-user me-2"></i>Your preferences</h3>
+                            <p class="text-muted mb-0">Update what you like to watch</p>
+                        </div>
                         <form method="POST" action="{{ url_for('auth.profile') }}">
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Country</label>
-                                    <div class="border rounded p-2" style="max-height: 300px; overflow:auto;">
-                                        {% for c in countries %}
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="country" value="{{ c }}" id="country_{{ loop.index }}" {% if c in selected_countries %}checked{% endif %}>
-                                            <label class="form-check-label" for="country_{{ loop.index }}">{{ c }}</label>
-                                        </div>
-                                        {% endfor %}
+                            <ul class="nav nav-pills mb-3" id="prefTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="genres-tab" data-bs-toggle="tab" data-bs-target="#genres" type="button" role="tab">
+                                        <i class="fas fa-theater-masks me-2"></i>Genres
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="languages-tab" data-bs-toggle="tab" data-bs-target="#languages" type="button" role="tab">
+                                        <i class="fas fa-language me-2"></i>Languages
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="countries-tab" data-bs-toggle="tab" data-bs-target="#countries" type="button" role="tab">
+                                        <i class="fas fa-globe-asia me-2"></i>Countries
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content">
+                                <!-- Genres -->
+                                <div class="tab-pane fade show active" id="genres" role="tabpanel" aria-labelledby="genres-tab">
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" placeholder="Search genres..." oninput="filterTiles(this, '#genres .select-tile')">
+                                        <div class="form-text">Select one or more genres</div>
                                     </div>
-                                    <div class="form-text">Choose one or more</div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Language</label>
-                                    <div class="border rounded p-2" style="max-height: 300px; overflow:auto;">
-                                        {% for l in languages %}
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="language" value="{{ l }}" id="language_{{ loop.index }}" {% if l in selected_languages %}checked{% endif %}>
-                                            <label class="form-check-label" for="language_{{ loop.index }}">{{ l }}</label>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="form-text">Choose one or more</div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Genre</label>
-                                    <div class="border rounded p-2" style="max-height: 300px; overflow:auto;">
+                                    <div class="tile-grid">
                                         {% for g in genres %}
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="genre" value="{{ g }}" id="genre_{{ loop.index }}" {% if g in selected_genres %}checked{% endif %}>
-                                            <label class="form-check-label" for="genre_{{ loop.index }}">{{ g }}</label>
-                                        </div>
+                                        <label class="select-tile d-flex align-items-center gap-2 {% if g in selected_genres %}active{% endif %}">
+                                            <input class="visually-hidden pref-check" type="checkbox" name="genre" value="{{ g }}" {% if g in selected_genres %}checked{% endif %}>
+                                            <i class="fas fa-tag text-muted"></i>
+                                            <span>{{ g }}</span>
+                                        </label>
                                         {% endfor %}
                                     </div>
-                                    <div class="form-text">Choose one or more</div>
+                                </div>
+
+                                <!-- Languages -->
+                                <div class="tab-pane fade" id="languages" role="tabpanel" aria-labelledby="languages-tab">
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" placeholder="Search languages..." oninput="filterTiles(this, '#languages .select-tile')">
+                                        <div class="form-text">Select one or more languages</div>
+                                    </div>
+                                    <div class="tile-grid">
+                                        {% for l in languages %}
+                                        {% set code = l[0] %}
+                                        {% set name = l[1] %}
+                                        <label class="select-tile d-flex justify-content-between align-items-center {% if code in selected_languages %}active{% endif %}">
+                                            <input class="visually-hidden pref-check" type="checkbox" name="language" value="{{ code }}" {% if code in selected_languages %}checked{% endif %}>
+                                            <span>{{ name }}</span>
+                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary border">{{ code }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Countries -->
+                                <div class="tab-pane fade" id="countries" role="tabpanel" aria-labelledby="countries-tab">
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control" placeholder="Search countries..." oninput="filterTiles(this, '#countries .select-tile')">
+                                        <div class="form-text">Select one or more countries</div>
+                                    </div>
+                                    <div class="tile-grid">
+                                        {% for c in countries %}
+                                        <label class="select-tile d-flex align-items-center gap-2 {% if c in selected_countries %}active{% endif %}">
+                                            <input class="visually-hidden pref-check" type="checkbox" name="country" value="{{ c }}" {% if c in selected_countries %}checked{% endif %}>
+                                            <i class="fas fa-flag text-muted"></i>
+                                            <span>{{ c }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
                                 </div>
                             </div>
-                            <div class="d-grid">
-                                <button class="btn btn-primary" type="submit">Save Preferences</button>
+
+                            <div class="d-grid mt-4">
+                                <button class="btn btn-primary" type="submit"><i class="fas fa-save me-2"></i>Save Preferences</button>
                             </div>
                         </form>
                     </div>
@@ -64,3 +100,28 @@
 {% endblock %}
 
 
+{% block extra_js %}
+<script>
+    // Toggle tile active state and sync with hidden checkboxes
+    document.querySelectorAll('.select-tile').forEach(function(tile){
+        tile.addEventListener('click', function(ev){
+            const input = tile.querySelector('.pref-check');
+            if (!input) return;
+            input.checked = !input.checked;
+            tile.classList.toggle('active', input.checked);
+            ev.preventDefault();
+        });
+    });
+    // Filter helper for tiles (scoped per tab)
+    function filterTiles(input, selector){
+        const query = (input.value || '').toLowerCase();
+        const container = input.parentElement?.nextElementSibling;
+        const tiles = container ? container.querySelectorAll(selector) : document.querySelectorAll(selector);
+        tiles.forEach(function(tile){
+            const text = (tile.textContent || '').toLowerCase();
+            tile.style.display = text.includes(query) ? '' : 'none';
+        });
+    }
+    window.filterTiles = filterTiles;
+</script>
+{% endblock %}

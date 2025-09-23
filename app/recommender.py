@@ -261,15 +261,18 @@ class HybridMovieRecommender:
             movie_id = self.index_to_movie_id[movie_idx]
             movie_data = self.movies_df.iloc[movie_idx]
             
+            # Clean fields and coerce rating to None if NaN
+            raw_rating = movie_data.get('rating') if hasattr(movie_data, 'get') else movie_data['rating']
+            rating_value = None if pd.isna(raw_rating) else float(raw_rating)
             results.append({
                 'movie_id': movie_id,
-                'title': movie_data['title'],
-                'genre': movie_data['genre'],
-                'overview': movie_data['overview'],
-                'rating': movie_data['rating'],
-                'score': hybrid_scores[idx],
-                'content_score': content_scores[idx],
-                'collab_score': collab_scores[idx]
+                'title': movie_data.get('title', ''),
+                'genre': movie_data.get('genre', ''),
+                'overview': movie_data.get('overview', ''),
+                'rating': rating_value,
+                'score': float(hybrid_scores[idx]),
+                'content_score': float(content_scores[idx]),
+                'collab_score': float(collab_scores[idx])
             })
             
         return pd.DataFrame(results)

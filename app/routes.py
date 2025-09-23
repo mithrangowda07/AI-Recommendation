@@ -4,6 +4,7 @@ from app.models import User, Preference
 from app import db
 import pandas as pd
 from app.recommender import get_recommender, hybrid_recommend
+import re
 from app.utils import get_model_info, validate_models
 import logging
 
@@ -41,14 +42,19 @@ def index():
                 selected_genres = [v.strip() for v in (pref.genre or '').split(',') if v.strip()]
 
                 if selected_countries:
-                    mask = False
+                    # Use robust substring match to handle various storage formats (CSV strings, lists, etc.)
+                    mask = pd.Series(False, index=movies_df.index)
+                    prod_country = movies_df['production_country'].fillna('')
                     for c in selected_countries:
-                        mask = mask | movies_df['production_country'].str.contains(c, na=False, case=False)
+                        mask = mask | prod_country.str.contains(re.escape(c), case=False, na=False, regex=True)
                     country_movies = movies_df[mask].head(12).to_dict('records')
                 if selected_languages:
-                    mask = False
+                    # Exact match on language code (avoid substring matches like "en" in "French")
+                    mask = pd.Series(False, index=movies_df.index)
+                    lang_col = movies_df['original_language'].fillna('').str.lower()
                     for l in selected_languages:
-                        mask = mask | movies_df['original_language'].str.contains(l, na=False, case=False)
+                        code = str(l).lower().strip()
+                        mask = mask | (lang_col == code)
                     language_movies = movies_df[mask].head(12).to_dict('records')
                 if selected_genres:
                     mask = False

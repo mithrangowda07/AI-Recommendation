@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,20 +11,48 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
+        :root {
+            --hero-grad-start: #667eea;
+            --hero-grad-end: #764ba2;
+            --footer-bg: #f8f9fa;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --card-shadow-hover: rgba(0, 0, 0, 0.2);
+        }
+        [data-bs-theme="dark"] {
+            /* Muted, low-saturation gradient for dark mode hero */
+            --hero-grad-start: #1f2a3a;
+            --hero-grad-end: #121824;
+            --footer-bg: #121212;
+            --card-shadow: rgba(0, 0, 0, 0.6);
+            --card-shadow-hover: rgba(0, 0, 0, 0.8);
+        }
+        /* Ensure overall page background changes in dark mode */
+        [data-bs-theme="dark"] body { background-color: #0f0f10; color: var(--bs-body-color); }
+        [data-bs-theme="dark"] main { background-color: transparent; }
+        /* Dark theme contrast fixes */
+        [data-bs-theme="dark"] .bg-light { background-color: #1f1f1f !important; }
+        [data-bs-theme="dark"] .card { background-color: #1b1b1b; }
+        [data-bs-theme="dark"] .movie-card { background-color: #1b1b1b; }
+        [data-bs-theme="dark"] .card-header { background-color: #1d1d1d; }
         .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--hero-grad-start) 0%, var(--hero-grad-end) 100%);
             color: white;
             padding: 4rem 0;
         }
+        /* Slightly soften hero text contrast in dark mode */
+        [data-bs-theme="dark"] .hero-section { color: #e9edf1; }
         .movie-card {
             transition: transform 0.3s ease;
             border: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px var(--card-shadow);
         }
         .movie-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 15px var(--card-shadow-hover);
         }
+        /* Smooth hover for all cards */
+        .card { transition: box-shadow .25s ease, transform .25s ease; }
+        .card:hover { transform: translateY(-2px); }
         .score-badge {
             position: absolute;
             top: 10px;
@@ -33,15 +61,83 @@
         }
         .genre-tag {
             background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            margin: 0.1rem;
-            display: inline-block;
+            color: #fff;
+            padding: 0.15rem 0.55rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            margin: 0.15rem;
+            display: inline-inline;
+            box-shadow: inset 0 -1px 0 rgba(255,255,255,0.2);
         }
+        [data-bs-theme="dark"] .genre-tag { box-shadow: inset 0 -1px 0 rgba(0,0,0,0.2); }
+
+        .section-title {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            color: var(--bs-body-color);
+        }
+        .section-title .muted { color: var(--bs-secondary-color); font-weight: 600; opacity: .95; }
+
+        .container-narrow { max-width: 980px; }
+        .content-section { padding: 2rem 0; }
+        /* Scrollbar styling */
+        *::-webkit-scrollbar { width: 10px; height: 10px; }
+        *::-webkit-scrollbar-thumb { background-color: rgba(100,100,100,.4); border-radius: 8px; }
+        [data-bs-theme="dark"] *::-webkit-scrollbar-thumb { background-color: rgba(200,200,200,.25); }
+
+        /* Choice lists (Profile/Signup) */
+        .choice-box {
+            background-color: rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+        [data-bs-theme="dark"] .choice-box {
+            background-color: rgba(255,255,255,0.03);
+            border-color: rgba(255,255,255,0.06);
+        }
+        .choice-filter {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: inherit;
+        }
+        .form-check { padding: .25rem .25rem; }
+        .form-check-label { cursor: pointer; }
+        .form-check-input:checked {
+            background-color: #6f74ff;
+            border-color: #6f74ff;
+        }
+        /* Improve checkbox visibility */
+        .form-check-input {
+            width: 1.1rem; height: 1.1rem; cursor: pointer;
+            border: 2px solid rgba(0,0,0,.55);
+            background-color: #fff;
+            appearance: auto; -webkit-appearance: auto; accent-color: #6f74ff;
+            margin-left: 0 !important; /* override Bootstrap's negative margin */
+        }
+        .form-check { display: flex; align-items: center; }
+        .form-check .form-check-input { margin-right: .5rem; }
+        .form-check-input:focus { box-shadow: 0 0 0 .15rem rgba(111,116,255,.25); border-color: #6f74ff; }
+        [data-bs-theme="dark"] .form-check-input { border-color: rgba(255,255,255,.7); background-color: #0f0f10; accent-color: #6f74ff; }
+
+        /* Tile grid used for multi-step signup */
+        .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .75rem; }
+        .select-tile {
+            border: 1px solid rgba(0,0,0,.1);
+            padding: .75rem .9rem;
+            border-radius: .75rem;
+            cursor: pointer;
+            user-select: none;
+            background: rgba(255,255,255,.6);
+        }
+        .select-tile:hover { transform: translateY(-1px); box-shadow: 0 2px 6px var(--card-shadow); }
+        .select-tile.active { border-color: #6f74ff; box-shadow: 0 0 0 2px rgba(111,116,255,.25) inset; background: rgba(111,116,255,.06); }
+        [data-bs-theme="dark"] .select-tile { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); }
+        [data-bs-theme="dark"] .select-tile.active { background: rgba(111,116,255,.12); border-color: rgba(111,116,255,.45); }
         .footer {
-            background-color: #f8f9fa;
+            background-color: var(--footer-bg);
             padding: 2rem 0;
             margin-top: 4rem;
         }
@@ -56,6 +152,11 @@
         .btn-primary:hover {
             background: linear-gradient(45deg, #5a6fd8, #6a4190);
         }
+        .btn, .form-control, .form-select { border-radius: .6rem; }
+        .btn:focus, .form-control:focus, .form-select:focus { outline: none; box-shadow: 0 0 0 .15rem rgba(111,116,255,.25); }
+        /* Improve outline button contrast for dark theme */
+        [data-bs-theme="dark"] .btn-outline-light { color: #ffffff; border-color: rgba(255,255,255,.45); }
+        [data-bs-theme="dark"] .btn-outline-light:hover { background-color: rgba(255,255,255,.1); }
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -71,7 +172,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
                     {% set ep = request.endpoint or '' %}
                     <li class="nav-item">
                         {% if ep == 'main.index' %}
@@ -123,6 +224,11 @@
                         </a>
                     </li>
                     {% endif %}
+                    <li class="nav-item ms-lg-3">
+                        <button id="themeToggle" class="btn btn-outline-light btn-sm" type="button" aria-label="Toggle theme">
+                            <i class="fas fa-moon me-2" id="themeIcon"></i><span class="d-none d-lg-inline">Theme</span>
+                        </button>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -167,7 +273,52 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <script>
+        (function() {
+            try {
+                const stored = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const theme = stored || (prefersDark ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                const icon = document.getElementById('themeIcon');
+                if (icon) icon.className = theme === 'dark' ? 'fas fa-sun me-2' : 'fas fa-moon me-2';
+                const toggle = document.getElementById('themeToggle');
+                if (toggle) {
+                    toggle.addEventListener('click', function() {
+                        const current = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light';
+                        const next = current === 'dark' ? 'light' : 'dark';
+                        document.documentElement.setAttribute('data-bs-theme', next);
+                        localStorage.setItem('theme', next);
+                        const icon = document.getElementById('themeIcon');
+                        if (icon) icon.className = next === 'dark' ? 'fas fa-sun me-2' : 'fas fa-moon me-2';
+                    });
+                }
+            } catch (e) { /* no-op */ }
+        })();
+    </script>
     {% block extra_js %}{% endblock %}
+    <script>
+        function filterChoices(input, idPrefix) {
+            const query = input.value.toLowerCase();
+            const container = input.closest('.choice-box');
+            if (container) {
+                const checks = container.querySelectorAll('.form-check');
+                checks.forEach((row) => {
+                    const label = row.querySelector('.form-check-label');
+                    const text = (label?.textContent || '').toLowerCase();
+                    row.style.display = text.includes(query) ? '' : 'none';
+                });
+                return;
+            }
+            // Tile grid filtering (multi-step signup)
+            const grid = input.parentElement?.nextElementSibling;
+            if (grid && grid.classList.contains('tile-grid')) {
+                Array.from(grid.children).forEach(el => {
+                    const text = (el.textContent || '').toLowerCase();
+                    el.style.display = text.includes(query) ? '' : 'none';
+                });
+            }
+        }
+    </script>
 </body>
 </html>

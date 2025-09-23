@@ -8,9 +8,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
-                <h2 class="mb-3">
-                    <i class="fas fa-magic me-2"></i>Recommendations for "{{ movie_title }}"
-                </h2>
+                <h2 class="mb-1 section-title"><i class="fas fa-magic"></i><span>Recommendations for</span> <span class="muted">"{{ movie_title }}"</span></h2>
                 <div class="row">
                     <div class="col-md-4">
                         <small class="text-muted">
@@ -74,7 +72,14 @@
                         <div class="row text-center mb-3">
                             <div class="col-4">
                                 <small class="text-muted d-block">Rating</small>
-                                <strong>{{ "%.1f"|format(movie.rating) }}</strong>
+                                {% set r = movie.rating %}
+                                <strong>
+                                    {% if r is not none and r == r %}
+                                        {{ "%.1f"|format(r) }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </strong>
                             </div>
                             <div class="col-4">
                                 <small class="text-muted d-block">Content Score</small>
@@ -111,7 +116,7 @@
         <!-- Score Explanation -->
         <div class="row mt-5">
             <div class="col-lg-8 mx-auto">
-                <div class="card">
+                <div class="card shadow-sm">
                     <div class="card-header">
                         <h5 class="mb-0">
                             <i class="fas fa-info-circle me-2"></i>Understanding the Scores
