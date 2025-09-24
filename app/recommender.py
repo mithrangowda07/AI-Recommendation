@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import json
+import difflib
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.decomposition import TruncatedSVD
@@ -27,6 +28,46 @@ class HybridMovieRecommender:
         self.movie_id_to_index = {}
         self.index_to_movie_id = {}
         
+    def _find_movie_index_by_title(self, user_title: str) -> Optional[int]:
+        """Find the best matching movie index for a possibly misspelled title.
+
+        Matching strategy:
+        1) Exact case-insensitive match
+        2) Substring/partial match (case-insensitive)
+        3) Fuzzy match using difflib.get_close_matches with a reasonable cutoff
+        """
+        if self.movies_df is None or 'title' not in self.movies_df:
+            return None
+
+        if not isinstance(user_title, str) or not user_title.strip():
+            return None
+
+        title_lower = user_title.strip().lower()
+
+        # 1) Exact match
+        for idx, title in enumerate(self.movies_df['title']):
+            if isinstance(title, str) and title.lower() == title_lower:
+                return idx
+
+        # 2) Partial contains match
+        for idx, title in enumerate(self.movies_df['title']):
+            if isinstance(title, str) and title_lower in title.lower():
+                return idx
+
+        # 3) Fuzzy match
+        titles_series = self.movies_df['title'].fillna('').astype(str)
+        titles_lower = titles_series.str.lower().tolist()
+        match_list = difflib.get_close_matches(title_lower, titles_lower, n=1, cutoff=0.6)
+        if match_list:
+            best_lower = match_list[0]
+            try:
+                best_idx = titles_lower.index(best_lower)
+                return best_idx
+            except ValueError:
+                return None
+
+        return None
+
     def load_data(self):
         """Load movies and ratings data"""
         print("Loading movies data...")
@@ -150,21 +191,9 @@ class HybridMovieRecommender:
         print("Models loaded successfully!")
         
     def get_content_similarity(self, movie_title: str, top_k: int = 50) -> List[Tuple[int, float]]:
-        """Get content-based similarity scores for a movie"""
-        # Find movie by title (case-insensitive)
-        movie_idx = None
-        for idx, title in enumerate(self.movies_df['title']):
-            if title.lower() == movie_title.lower():
-                movie_idx = idx
-                break
-                
-        if movie_idx is None:
-            # Try partial matching
-            for idx, title in enumerate(self.movies_df['title']):
-                if movie_title.lower() in title.lower():
-                    movie_idx = idx
-                    break
-                    
+        """Get content-based similarity scores for a movie, tolerant to misspellings."""
+        # Find movie by title using robust matching (exact, partial, fuzzy)
+        movie_idx = self._find_movie_index_by_title(movie_title)
         if movie_idx is None:
             return []
             
@@ -254,18 +283,24 @@ class HybridMovieRecommender:
         # Get top recommendations
         top_indices = np.argsort(hybrid_scores)[::-1][:top_n]
         
-        # Create results dataframe
+        # Create results dataframe (robust to missing mappings/out-of-range indices)
         results = []
+        num_movies = len(self.movies_df) if self.movies_df is not None else 0
         for idx in top_indices:
-            movie_idx = movie_indices[idx]
-            movie_id = self.index_to_movie_id[movie_idx]
+            movie_idx = int(movie_indices[idx])
+            # Skip if out of bounds or mapping missing
+            if movie_idx < 0 or movie_idx >= num_movies:
+                continue
+            movie_id = self.index_to_movie_id.get(movie_idx)
+            if movie_id is None:
+                continue
             movie_data = self.movies_df.iloc[movie_idx]
             
             # Clean fields and coerce rating to None if NaN
             raw_rating = movie_data.get('rating') if hasattr(movie_data, 'get') else movie_data['rating']
             rating_value = None if pd.isna(raw_rating) else float(raw_rating)
             results.append({
-                'movie_id': movie_id,
+                'movie_id': int(movie_id) if isinstance(movie_id, (np.integer,)) else movie_id,
                 'title': movie_data.get('title', ''),
                 'genre': movie_data.get('genre', ''),
                 'overview': movie_data.get('overview', ''),
