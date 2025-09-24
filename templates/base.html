@@ -79,7 +79,18 @@
             gap: .5rem;
             color: var(--bs-body-color);
         }
+        /* Section heading sizing */
+        .section-title { font-size: 1.35rem; }
+        @media (min-width: 992px) {
+            .section-title { font-size: 1.5rem; }
+        }
         .section-title .muted { color: var(--bs-secondary-color); font-weight: 600; opacity: .95; }
+
+        /* Larger spacing between consecutive content sections */
+        .section-spacer { margin-bottom: 4rem; }
+        @media (min-width: 992px) {
+            .section-spacer { margin-bottom: 4.5rem; }
+        }
 
         .container-narrow { max-width: 980px; }
         .content-section { padding: 2rem 0; }
