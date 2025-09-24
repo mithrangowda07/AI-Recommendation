@@ -114,6 +114,15 @@ def recommend():
             flash('Recommendation system not available. Please run train.py first.', 'error')
             return redirect(url_for('main.index'))
         
+        # Cap requested results to available movies to avoid errors
+        try:
+            total_movies = len(recommender.movies_df) if getattr(recommender, 'movies_df', None) is not None else 0
+        except Exception:
+            total_movies = 0
+        if total_movies > 1:
+            max_possible = max(1, total_movies - 1)
+            top_n = min(top_n, max_possible)
+        
         recommendations = hybrid_recommend(user_id, movie_title, alpha, top_n)
         
         if recommendations.empty:

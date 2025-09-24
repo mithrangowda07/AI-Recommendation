@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div class="col-lg-4 text-lg-end">
-                <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+                <a href="{{ url_for('main.recommendations_page') }}" class="btn btn-outline-primary">
                     <i class="fas fa-arrow-left me-1"></i>New Search
                 </a>
             </div>
@@ -65,7 +65,7 @@
                         
                         <!-- Overview -->
                         <p class="card-text text-muted small">
-                            {{ movie.overview[:150] }}{% if movie.overview|length > 150 %}...{% endif %}
+                            {{ (movie.overview or '')[:150] }}{% if movie.overview and (movie.overview|length > 150) %}...{% endif %}
                         </p>
                         
                         <!-- Movie Details -->
@@ -172,7 +172,7 @@
                             We couldn't find any recommendations for "{{ movie_title }}". 
                             Try a different movie title or check the spelling.
                         </p>
-                        <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                        <a href="{{ url_for('main.recommendations_page') }}" class="btn btn-primary">
                             <i class="fas fa-arrow-left me-1"></i>Try Again
                         </a>
                     </div>
