@@ -6,7 +6,7 @@ A sophisticated Flask web application that provides personalized movie recommend
 
 - **🤖 Hybrid AI System**: Combines content-based and collaborative filtering for superior recommendations
 - **🎯 Customizable Balance**: Adjust the weight between content similarity and user preferences
-- **🌐 Web Interface**: Beautiful, responsive Bootstrap UI for easy interaction
+- **🌐 Web Interface**: Beautiful, responsive Bootstrap UI with dark/light theme toggle
 - **🔌 REST API**: Programmatic access for integration with other applications
 - **📊 Detailed Scoring**: Transparent scoring system showing content and collaborative scores
 - **⚡ Real-time Results**: Instant recommendations with comprehensive movie information
@@ -124,6 +124,10 @@ AI-Recommendation/
 3. **Adjust Balance**: Use the slider to balance content vs. collaborative filtering (0-1)
 4. **Select Count**: Choose how many recommendations to receive (5-20)
 5. **Get Recommendations**: Click the button to see personalized results
+6. **Theme**: Use the Theme toggle in the navbar to switch light/dark
+
+### Homepage Sections
+- "Popular in <country>" and "In <language>" cards show curated tiles with improved spacing and compact headings for readability.
 
 ### API Endpoints
 
